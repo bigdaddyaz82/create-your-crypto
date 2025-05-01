@@ -7,159 +7,153 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f4f7fc;
-      color: #333;
-      margin: 0;
-      padding: 0;
-    }
-    header {
-      background-color: #28a745;
-      color: white;
+      background-color: #f4f4f4;
       padding: 20px;
-      text-align: center;
     }
-    h1 {
-      font-size: 2.5em;
-    }
-    .intro {
-      margin: 20px;
-      text-align: center;
-      font-size: 1.2em;
-    }
-    .form-container {
+    .container {
       max-width: 600px;
       margin: 0 auto;
-      background-color: #ffffff;
+      background-color: #fff;
       padding: 20px;
       border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
-    .form-container input, .form-container select, .form-container button {
+    h1 {
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+    }
+    input, select, button {
       width: 100%;
       padding: 10px;
-      margin: 10px 0;
-      border: 1px solid #ddd;
+      margin-bottom: 10px;
       border-radius: 4px;
+      border: 1px solid #ccc;
     }
-    .form-container button {
-      background-color: #28a745;
+    button {
+      background-color: #4CAF50;
       color: white;
-      border: none;
       cursor: pointer;
-      font-size: 1.2em;
     }
-    .form-container button:hover {
-      background-color: #218838;
+    button:hover {
+      background-color: #45a049;
     }
   </style>
 </head>
 <body>
 
-<header>
+<div class="container">
   <h1>Create Your Crypto Token</h1>
-</header>
 
-<div class="intro">
-  <p>Make your own custom cryptocurrency token today! Choose your options and deploy your token to the blockchain.</p>
-</div>
+  <!-- Token Details Form -->
+  <label for="tokenName">Token Name:</label>
+  <input type="text" id="tokenName" placeholder="Enter token name">
 
-<div class="form-container">
-  <h2>Enter Your Token Details</h2>
-  <form id="tokenForm">
-    <input type="text" id="tokenName" placeholder="Token Name" required />
-    <input type="text" id="tokenSymbol" placeholder="Token Symbol" required />
-    <input type="number" id="tokenSupply" placeholder="Total Supply (e.g., 1000000)" required />
-    <select id="blockchain" required>
-      <option value="base">Base Network</option>
-      <option value="ethereum">Ethereum</option>
-      <option value="polygon">Polygon</option>
-      <option value="binance">Binance Smart Chain (BNB)</option>
-    </select>
-    <br/>
-    <button type="button" id="payButton">Pay & Deploy Token</button>
-  </form>
+  <label for="tokenSymbol">Token Symbol:</label>
+  <input type="text" id="tokenSymbol" placeholder="Enter token symbol">
+
+  <label for="tokenSupply">Token Supply:</label>
+  <input type="number" id="tokenSupply" placeholder="Enter token supply">
+
+  <label for="blockchain">Select Blockchain:</label>
+  <select id="blockchain">
+    <option value="ethereum">Ethereum</option>
+    <option value="polygon">Polygon</option>
+    <option value="base">Base</option>
+    <option value="bnb">BNB</option>
+    <option value="avalanche">Avalanche</option>
+    <option value="solana">Solana</option>
+  </select>
+
+  <h3>Select a Package</h3>
+  <select id="package">
+    <option value="basic">Basic Package - $29.99</option>
+    <option value="premium">Premium Package - $49.99</option>
+  </select>
+
+  <!-- Payment Button (MetaMask) -->
+  <button id="payButton">Pay & Deploy Token</button>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
 <script>
-  const contractAddress = '0xd9CD0AF84756AFBb218aF344d93f364F4e1d8700';  // Your MetaMask wallet address
-
-  document.getElementById("payButton").addEventListener("click", async () => {
-    if (typeof window.ethereum !== 'undefined') {
-      // Request wallet connection
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const signer = provider.getSigner();
-      
-      await provider.send("eth_requestAccounts", []);  // Request MetaMask accounts
-      const userAddress = await signer.getAddress();
-      
-      // Token creation details
-      const tokenName = document.getElementById("tokenName").value;
-      const tokenSymbol = document.getElementById("tokenSymbol").value;
-      const totalSupply = document.getElementById("tokenSupply").value;
-      const blockchain = document.getElementById("blockchain").value;
-
-      // Get price based on selected blockchain
-      const priceInEth = getPrice(blockchain);
-
-      // Prepare transaction
-      const tx = {
-        to: contractAddress,  // Send payment to your MetaMask wallet address
-        value: ethers.utils.parseEther(priceInEth.toString()),  // Payment amount
-      };
-
-      try {
-        // Send the payment
-        const txResponse = await signer.sendTransaction(tx);
-        await txResponse.wait();  // Wait for transaction confirmation
-
-        // Deploy the token to the user's wallet
-        await deployToken(tokenName, tokenSymbol, totalSupply, blockchain, userAddress);
-        alert("Token created successfully and payment received!");
-      } catch (error) {
-        console.error("Payment or Token Creation failed:", error);
-        alert("Something went wrong! Please try again.");
-      }
-    } else {
-      alert("MetaMask is not connected. Please install MetaMask.");
+  const payButton = document.getElementById('payButton');
+  
+  payButton.addEventListener('click', async () => {
+    // Check if MetaMask is installed
+    if (typeof window.ethereum === 'undefined') {
+      alert("MetaMask is required to proceed.");
+      return;
     }
+
+    // Request connection to MetaMask
+    await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+    const userAddress = await signer.getAddress();
+
+    // Get the payment amount based on selected package
+    const packageSelected = document.getElementById('package').value;
+    let paymentAmount;
+
+    if (packageSelected === 'premium') {
+      paymentAmount = ethers.utils.parseEther("49.99"); // Premium Package Price
+    } else {
+      paymentAmount = ethers.utils.parseEther("29.99"); // Basic Package Price
+    }
+
+    // Send the payment to your address (replace with your actual wallet address)
+    const contractAddress = "0xd9CD0AF84756AFBb218aF344d93f364F4e1d8700"; // Replace with your MetaMask address
+    const tx = await signer.sendTransaction({
+      to: contractAddress,
+      value: paymentAmount
+    });
+
+    await tx.wait();
+
+    // Proceed with token creation after payment
+    const tokenDetails = {
+      name: document.getElementById('tokenName').value,
+      symbol: document.getElementById('tokenSymbol').value,
+      supply: document.getElementById('tokenSupply').value,
+      blockchain: document.getElementById('blockchain').value,
+      package: packageSelected,
+    };
+
+    // Deploy the token on the selected blockchain
+    await deployToken(tokenDetails);
   });
 
-  // Get the payment price based on blockchain choice
-  function getPrice(blockchain) {
-    if (blockchain === "ethereum") {
-      return 0.05; // Example price for Ethereum
-    } else if (blockchain === "polygon") {
-      return 0.03; // Example price for Polygon
-    } else if (blockchain === "binance") {
-      return 0.02; // Example price for BNB
-    } else {
-      return 0.05; // Default price for Base network or others
-    }
-  }
+  async function deployToken(details) {
+    // Create the provider based on the selected blockchain
+    const blockchainUrls = {
+      'ethereum': 'https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID',
+      'polygon': 'https://polygon-rpc.com',
+      'base': 'https://base-rpc-url', // Replace with actual Base RPC URL
+      'bnb': 'https://bsc-dataseed.binance.org',
+      'avalanche': 'https://api.avax.network/ext/bc/C/rpc',
+      'solana': 'https://api.mainnet-beta.solana.com',
+    };
 
-  // Deploy the token using the smart contract
-  async function deployToken(name, symbol, supply, blockchain, userAddress) {
-    const provider = new ethers.providers.JsonRpcProvider(getBlockchainUrl(blockchain));
-    const wallet = new ethers.Wallet("<YOUR_PRIVATE_KEY>", provider);
+    const provider = new ethers.providers.JsonRpcProvider(blockchainUrls[details.blockchain]);
+    const wallet = new ethers.Wallet('YOUR_PRIVATE_KEY', provider); // Replace with your private key
 
-    // Create contract instance and deploy token
-    const contract = new ethers.Contract("<YOUR_CONTRACT_ADDRESS>", [
-      // Insert the contract ABI here
-    ], wallet);
+    // Deploy the contract (simplified example, you should use your actual contract)
+    const contractFactory = new ethers.ContractFactory(
+      TokenABI, 
+      TokenBytecode, 
+      wallet
+    );
 
-    const tx = await contract.deployToken(name, symbol, supply, userAddress);
-    await tx.wait();
-    console.log("Token deployed successfully:", tx);
-  }
+    const contract = await contractFactory.deploy(details.name, details.symbol, details.supply);
+    const userWallet = userAddress;
 
-  // Get blockchain URL based on user's selection
-  function getBlockchainUrl(blockchain) {
-    if (blockchain === "base") return "https://mainnet.base.org";
-    if (blockchain === "ethereum") return "https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID";
-    if (blockchain === "polygon") return "https://polygon-rpc.com";
-    if (blockchain === "binance") return "https://bsc-dataseed.binance.org/";
-    return "https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID";  // Default URL
+    // Send the token to the user's wallet
+    await contract.transfer(userWallet, details.supply);
+
+    alert("Token successfully deployed!");
   }
 </script>
 
