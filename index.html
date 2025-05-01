@@ -3,53 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Your Crypto</title>
-    <style>
-        body { font-family: Arial, sans-serif; background-color: #f7f7f7; padding: 20px; }
-        h1 { color: #333; }
-        h2 { color: #444; }
-        .option { background-color: #fff; padding: 15px; border-radius: 8px; margin: 15px 0; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
-        .option button { padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        .option button:hover { background-color: #45a049; }
-        .info { margin-top: 20px; font-size: 16px; color: #333; }
-    </style>
+    <meta name="description" content="Create your own crypto token with ease! Select from our packages to mint your token and get it deployed on the blockchain of your choice.">
+    <title>Create Your Crypto Token</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Create Your Own Crypto Token</h1>
 
-    <p>Welcome to Create Your Crypto! Easily mint your own tokens and enjoy minting and burning support for your project. Choose your desired minting option below:</p>
+<header>
+    <h1>Create Your Crypto</h1>
+    <p>Make your own crypto with Create Your Crypto. Trust us on all blockchains. Mint, deploy, and own your token today!</p>
+</header>
 
-    <h2>Select Your Minting Option:</h2>
-    
-    <div class="option">
-        <h3>Option 1: Mint 10,000 Tokens for $5.99</h3>
-        <p>This option allows you to mint exactly 10,000 tokens for just $5.99. Perfect for getting started!</p>
-        <button onclick="selectMintingOption(10000, 5.99)">Mint 10,000 Tokens</button>
-    </div>
-    
-    <div class="option">
-        <h3>Option 2: Mint More than 10,000 Tokens for $30</h3>
-        <p>Want more than 10,000 tokens? This option lets you mint more tokens, with a maximum of 1 million tokens, for just $30.</p>
-        <button onclick="selectMintingOption(100000, 30)">Mint More Than 10,000 Tokens</button>
-    </div>
-    
-    <div class="option">
-        <h3>Option 3: Unlimited Minting for $40</h3>
-        <p>Go unlimited! Mint as many tokens as you want for a flat fee of $40.</p>
-        <button onclick="selectMintingOption(1000000, 40)">Unlimited Minting</button>
+<section id="packages">
+    <h2>Choose Your Package</h2>
+
+    <div class="package">
+        <h3>Basic Package</h3>
+        <p><strong>Price:</strong> $5.99</p>
+        <p><strong>Mint up to 10,000 tokens</strong></p>
+        <ul>
+            <li>Token name, symbol, and blockchain selection</li>
+            <li>Simple ERC-20 or BEP-20 token creation</li>
+            <li>Basic contract deployment</li>
+            <li>Tokens sent directly to your wallet</li>
+        </ul>
+        <button onclick="selectPackage('basic')">Select Basic Package</button>
     </div>
 
-    <div class="info">
-        <h2>What's Included?</h2>
-        <p>When you mint tokens with us, you also get full <strong>Minting and Burning Support</strong>. You can burn your tokens later or continue minting as needed.</p>
+    <div class="package">
+        <h3>Standard Package</h3>
+        <p><strong>Price:</strong> $29.99</p>
+        <p><strong>Mint more than 10,000 tokens</strong></p>
+        <ul>
+            <li>Everything in the Basic Package</li>
+            <li>Higher token supply</li>
+            <li>Deployable on multiple blockchains</li>
+            <li>Minting and burning support</li>
+        </ul>
+        <button onclick="selectPackage('standard')">Select Standard Package</button>
     </div>
 
-    <script>
-        function selectMintingOption(amount, price) {
-            // Proceed to handle the payment and minting process
-            alert(`You selected to mint ${amount} tokens for ${price} ETH. Proceeding to payment...`);
-            // Link to payment system (Coinbase Commerce or other) here
+    <div class="package">
+        <h3>Premium Package</h3>
+        <p><strong>Price:</strong> $49.99</p>
+        <p><strong>Unlimited minting & extra features</strong></p>
+        <ul>
+            <li>Everything in the Standard Package</li>
+            <li>Deployable on all supported blockchains</li>
+            <li>Option to add transaction tax (0% - 10%)</li>
+            <li>Full minting and burning support</li>
+            <li>Customizable token features, including tax allocation</li>
+        </ul>
+        <label for="taxPercentage">Tax Percentage (Optional, 0-10%):</label>
+        <input type="number" id="taxPercentage" name="taxPercentage" min="0" max="10" step="0.1">
+        <button onclick="selectPackage('premium')">Select Premium Package</button>
+    </div>
+</section>
+
+<section id="token-details">
+    <h2>Enter Your Token Details</h2>
+    <form id="tokenForm" onsubmit="submitForm(event)">
+        <label for="tokenName">Token Name:</label>
+        <input type="text" id="tokenName" name="tokenName" required>
+
+        <label for="tokenSymbol">Token Symbol:</label>
+        <input type="text" id="tokenSymbol" name="tokenSymbol" required>
+
+        <label for="tokenSupply">Token Supply:</label>
+        <input type="number" id="tokenSupply" name="tokenSupply" required>
+
+        <label for="blockchain">Select Blockchain:</label>
+        <select id="blockchain" name="blockchain">
+            <option value="ethereum">Ethereum</option>
+            <option value="polygon">Polygon</option>
+            <option value="binance">Binance Smart Chain</option>
+            <!-- Add other blockchains here -->
+        </select>
+
+        <div id="coinbase-payment">
+            <p>Please complete the payment below:</p>
+            <!-- Payment gateway integration will go here -->
+        </div>
+
+        <button type="submit">Create Token</button>
+    </form>
+</section>
+
+<footer>
+    <p>&copy; 2025 CreateYourCrypto. All rights reserved.</p>
+</footer>
+
+<script>
+    let selectedPackage = null;
+
+    function selectPackage(packageType) {
+        selectedPackage = packageType;
+        document.getElementById('coinbase-payment').style.display = 'block';
+
+        let price = 0;
+        switch(packageType) {
+            case 'basic':
+                price = 5.99;
+                break;
+            case 'standard':
+                price = 29.99;
+                break;
+            case 'premium':
+                price = 49.99;
+                break;
         }
-    </script>
+
+        // Display payment options based on selected package
+        alert("You have selected the " + packageType + " package. The price is $" + price + ". Please proceed with the payment.");
+        // Integrate Coinbase Commerce payment gateway here
+    }
+
+    function submitForm(event) {
+        event.preventDefault();
+
+        const tokenName = document.getElementById('tokenName').value;
+        const tokenSymbol = document.getElementById('tokenSymbol').value;
+        const tokenSupply = document.getElementById('tokenSupply').value;
+        const blockchain = document.getElementById('blockchain').value;
+        const taxPercentage = document.getElementById('taxPercentage').value;
+
+        if (!selectedPackage) {
+            alert("Please select a package first!");
+            return;
+        }
+
+        // Handle form submission logic here
+        // Ensure payment is confirmed before proceeding with contract creation
+        alert("Token details submitted: " + tokenName + ", " + tokenSymbol + ", " + tokenSupply + ", " + blockchain + " with tax: " + taxPercentage + "%.");
+        // Call the backend API to create the token based on the user's inputs
+    }
+</script>
+
 </body>
 </html>
