@@ -1,183 +1,78 @@
-from zipfile import ZipFile
-from pathlib import Path
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create Your Crypto</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #0e0e0e; color: #fff; padding: 20px; }
+    h1 { color: #ffcc00; }
+    form { background: #1e1e1e; padding: 20px; border-radius: 10px; max-width: 400px; }
+    label { display: block; margin-top: 10px; }
+    input, select { width: 100%; padding: 8px; margin-top: 5px; border-radius: 5px; border: none; }
+    button { margin-top: 20px; padding: 10px; background: #ffcc00; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
+    .note { margin-top: 20px; font-size: 0.9em; color: #ccc; }
+  </style>
+</head>
+<body>
+  <h1>Create Your Crypto</h1>
+  <p>Fill in your token info and send <strong>$40 in ETH or USDC</strong> to:</p>
+  <p style="color: #00ffcc;"><strong>0x75e8B7b4A4Fa18914D2d9616523bB0E56B5DAf3C</strong></p>
 
-# File structure and content
-file_structure = {
-    "contracts/TokenFactory.sol": """// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+  <form id="tokenForm">
+    <label for="name">Token Name:</label>
+    <input type="text" id="name" required />
 
-contract TokenFactory {
-    string public name;
-    string public symbol;
-    uint256 public totalSupply;
-    uint256 public taxBasisPoints;
-    address public owner;
-    bool public mintable;
-    bool public burnable;
+    <label for="symbol">Symbol:</label>
+    <input type="text" id="symbol" required />
 
-    mapping(address => uint256) public balanceOf;
+    <label for="supply">Total Supply:</label>
+    <input type="number" id="supply" required />
 
-    event Transfer(address indexed from, address indexed to, uint256 value);
-    event Burn(address indexed from, uint256 value);
-    event Mint(address indexed to, uint256 value);
+    <label for="mintable">Mintable?</label>
+    <select id="mintable">
+      <option value="true">Yes</option>
+      <option value="false">No</option>
+    </select>
 
-    constructor(
-        string memory _name,
-        string memory _symbol,
-        uint256 _supply,
-        bool _mintable,
-        bool _burnable,
-        uint256 _taxBasisPoints,
-        address _owner
-    ) {
-        name = _name;
-        symbol = _symbol;
-        totalSupply = _supply;
-        mintable = _mintable;
-        burnable = _burnable;
-        taxBasisPoints = _taxBasisPoints;
-        owner = _owner;
-        balanceOf[_owner] = _supply;
-        emit Transfer(address(0), _owner, _supply);
-    }
+    <label for="burnable">Burnable?</label>
+    <select id="burnable">
+      <option value="true">Yes</option>
+      <option value="false">No</option>
+    </select>
 
-    function transfer(address _to, uint256 _value) public returns (bool success) {
-        require(balanceOf[msg.sender] >= _value, "Insufficient balance");
+    <label for="tax">Tax % (0–10):</label>
+    <input type="number" id="tax" min="0" max="10" value="0" />
 
-        uint256 tax = (taxBasisPoints > 0) ? (_value * taxBasisPoints) / 10000 : 0;
-        uint256 amountAfterTax = _value - tax;
+    <button type="submit">Download Token Config</button>
+  </form>
 
-        balanceOf[msg.sender] -= _value;
-        balanceOf[_to] += amountAfterTax;
-        if (tax > 0) {
-            balanceOf[owner] += tax;
-        }
+  <div class="note">
+    After payment and download, send the file to our team. We'll deploy your token on-chain and notify you!
+  </div>
 
-        emit Transfer(msg.sender, _to, amountAfterTax);
-        return true;
-    }
+  <script>
+    const form = document.getElementById('tokenForm');
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
 
-    function burn(uint256 _value) public returns (bool success) {
-        require(burnable, "Burning is disabled");
-        require(balanceOf[msg.sender] >= _value, "Insufficient balance to burn");
+      const config = {
+        name: document.getElementById('name').value,
+        symbol: document.getElementById('symbol').value,
+        totalSupply: document.getElementById('supply').value,
+        mintable: document.getElementById('mintable').value === 'true',
+        burnable: document.getElementById('burnable').value === 'true',
+        taxPercentage: parseInt(document.getElementById('tax').value),
+        paymentWallet: '0x75e8B7b4A4Fa18914D2d9616523bB0E56B5DAf3C'
+      };
 
-        balanceOf[msg.sender] -= _value;
-        totalSupply -= _value;
-        emit Burn(msg.sender, _value);
-        return true;
-    }
-
-    function mint(address _to, uint256 _value) public returns (bool success) {
-        require(mintable, "Minting is disabled");
-        require(msg.sender == owner, "Only owner can mint");
-
-        totalSupply += _value;
-        balanceOf[_to] += _value;
-        emit Mint(_to, _value);
-        return true;
-    }
-}
-""",
-    "deploy.js": """const { ethers } = require("hardhat");
-require("dotenv").config();
-
-async function main() {
-  const [deployer] = await ethers.getSigners();
-  console.log("Deploying contracts with:", deployer.address);
-
-  const config = require("./token-config.json");
-  const TokenFactory = await ethers.getContractFactory("TokenFactory");
-
-  const token = await TokenFactory.deploy(
-    config.name,
-    config.symbol,
-    config.supply,
-    config.mintable,
-    config.burnable,
-    config.tax,
-    config.owner
-  );
-
-  await token.deployed();
-  console.log("Token deployed to:", token.address);
-}
-
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
-""",
-    "token-config.json": """{
-  "name": "ExampleToken",
-  "symbol": "EXT",
-  "supply": 1000000,
-  "mintable": true,
-  "burnable": true,
-  "tax": 200,
-  "owner": "0x75e8B7b4A4Fa18914D2d9616523bB0E56B5DAf3C"
-}
-""",
-    "hardhat.config.js": """require("@nomicfoundation/hardhat-toolbox");
-require("dotenv").config();
-
-module.exports = {
-  solidity: "0.8.20",
-  networks: {
-    base: {
-      url: process.env.BASE_RPC_URL,
-      accounts: [process.env.PRIVATE_KEY]
-    },
-    polygon: {
-      url: process.env.POLYGON_RPC_URL,
-      accounts: [process.env.PRIVATE_KEY]
-    },
-    ethereum: {
-      url: process.env.ETHEREUM_RPC_URL,
-      accounts: [process.env.PRIVATE_KEY]
-    }
-  }
-};
-""",
-    ".github/workflows/deploy.yml": """name: Deploy Token
-
-on:
-  workflow_dispatch:
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-
-      - name: Install dependencies
-        run: |
-          npm install --save-dev hardhat
-          npm install @nomicfoundation/hardhat-toolbox ethers dotenv
-
-      - name: Compile contract
-        run: npx hardhat compile
-
-      - name: Deploy contract
-        run: node deploy.js
-        env:
-          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-          BASE_RPC_URL: ${{ secrets.BASE_RPC_URL }}
-          POLYGON_RPC_URL: ${{ secrets.POLYGON_RPC_URL }}
-          ETHEREUM_RPC_URL: ${{ secrets.ETHEREUM_RPC_URL }}
-"""
-}
-
-# Create zip file
-zip_path = "/mnt/data/CreateYourCrypto.zip"
-with ZipFile(zip_path, "w") as zipf:
-    for path, content in file_structure.items():
-        file_path = Path(path)
-        zipf.writestr(str(file_path), content)
-
-zip_path
+      const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'token-config.json';
+      a.click();
+    });
+  </script>
+</body>
+</html>
