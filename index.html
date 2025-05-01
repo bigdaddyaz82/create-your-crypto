@@ -1,7 +1,8 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Create Your Crypto</title>
   <style>
     body {
@@ -75,10 +76,13 @@
   <header>
     <h1>Create Your Crypto</h1>
     <p>Trusted on all blockchains. Created by BigDaddyAZ82 & sponsored by Reynolds Painting and Resurfacing LLC.</p>
-  </header>  <section>
+  </header>
+
+  <section>
     <input type="text" id="tokenName" placeholder="Token Name">
     <input type="text" id="tokenSymbol" placeholder="Token Symbol">
     <input type="number" id="tokenSupply" placeholder="Total Supply">
+    <input type="number" id="decimals" placeholder="Decimals (e.g. 18)">
     <input type="text" id="userWallet" placeholder="Your Wallet Address">
     <select id="blockchain">
       <option value="base">Base</option>
@@ -89,157 +93,18 @@
       <option value="avalanche">Avalanche</option>
       <option value="fantom">Fantom</option>
     </select>
-  </section>  <section class="packages">
-    <div class="package">
-      <h3>Basic - $5.99</h3>
-      <p>Name, Symbol, Supply & Deploy</p>
-    </div>
-    <div class="package">
-      <h3>Intermediate - $29.99</h3>
-      <p>Basic + Logo & Decimals</p>
-    </div>
-    <div class="package">
-      <h3>Premium - $49.99</h3>
-      <p>Intermediate + Tokenomics & Priority</p>
-    </div>
-  </section><button id="payButton">Pay & Deploy Token</button>
-
-  <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>  <script>
-    const payButton = document.getElementById('payButton');
-    const receiverAddress = '0xd9CD0AF84756AFBb218aF344d93f364F4e1d8700';
-
-    payButton.addEventListener('click', async () => {
-      if (typeof window.ethereum === 'undefined') {
-        alert('MetaMask not found. Please install MetaMask to continue.');
-        return;
-      }
-
-      await window.ethereum.request({ method: 'eth_requestAccounts' });
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const signer = provider.getSigner();
-
-      const tokenDetails = {
-        name: document.getElementById('tokenName').value,
-        symbol: document.getElementById('tokenSymbol').value,
-        supply: ethers.utils.parseUnits(document.getElementById('tokenSupply').value, 18),
-        blockchain: document.getElementById('blockchain').value,
-        wallet: document.getElementById('userWallet').value
-      };
-
-      try {
-        // Simulated payment value in ETH (update per real logic)
-        const tx = await signer.sendTransaction({
-          to: receiverAddress,
-          value: ethers.utils.parseEther("0.01")
-        });
-
-        await tx.wait();
-        alert('Payment successful. Your token will now be deployed.');
-
-        // Call your backend server or contract deployment logic here
-        // deployToken(tokenDetails);  <--- You build this part with backend or secured script
-
-      } catch (err) {
-        console.error(err);
-        alert('Transaction failed. Please try again.');
-      }
-    });
-  </script></body>
-</html><!DOCTYPE html><html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Create Your Crypto</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f3f3f3;
-      margin: 0;
-      padding: 0;
-      text-align: center;
-    }
-    header {
-      background: linear-gradient(to right, #ff9900, #ff6600);
-      padding: 30px;
-      color: white;
-      font-size: 2em;
-      position: relative;
-    }
-    header::before {
-      content: "C";
-      font-size: 5em;
-      color: rgba(255, 255, 255, 0.1);
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      z-index: 0;
-    }
-    h1 {
-      margin: 0;
-      position: relative;
-      z-index: 1;
-    }
-    section {
-      margin: 20px;
-    }
-    input, select, button {
-      margin: 10px;
-      padding: 10px;
-      font-size: 1em;
-      width: 80%;
-      max-width: 400px;
-    }
-    button {
-      background-color: #28a745;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #218838;
-    }
-    .packages {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 15px;
-      margin-top: 20px;
-    }
-    .package {
-      background-color: white;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      padding: 20px;
-      width: 250px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    .package h3 {
-      margin-top: 0;
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <h1>Create Your Crypto</h1>
-    <p>Trusted on all blockchains. Created by BigDaddyAZ82 & sponsored by Reynolds Painting and Resurfacing LLC.</p>
-  </header>  <section>
-    <input type="text" id="tokenName" placeholder="Token Name">
-    <input type="text" id="tokenSymbol" placeholder="Token Symbol">
-    <input type="number" id="tokenSupply" placeholder="Total Supply">
-    <input type="text" id="userWallet" placeholder="Your Wallet Address">
-    <select id="blockchain">
-      <option value="base">Base</option>
-      <option value="ethereum">Ethereum</option>
-      <option value="polygon">Polygon</option>
-      <option value="bnb">BNB Chain</option>
-      <option value="solana">Solana</option>
-      <option value="avalanche">Avalanche</option>
-      <option value="fantom">Fantom</option>
+    <select id="package">
+      <option value="basic">Basic - $5.99</option>
+      <option value="intermediate">Intermediate - $29.99</option>
+      <option value="premium">Premium - $49.99</option>
     </select>
-  </section>  <section class="packages">
+  </section>
+
+  <section class="packages">
     <div class="package">
       <h3>Basic - $5.99</h3>
       <p>Name, Symbol, Supply & Deploy</p>
+      <p><strong>Max Supply: 10,000 Tokens</strong></p>
     </div>
     <div class="package">
       <h3>Intermediate - $29.99</h3>
@@ -247,11 +112,14 @@
     </div>
     <div class="package">
       <h3>Premium - $49.99</h3>
-      <p>Intermediate + Tokenomics & Priority</p>
+      <p>Intermediate + Tokenomics, Tax Fees, Burn Fees & Priority Support</p>
     </div>
-  </section><button id="payButton">Pay & Deploy Token</button>
+  </section>
 
-  <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>  <script>
+  <button id="payButton">Pay & Deploy Token</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
+  <script>
     const payButton = document.getElementById('payButton');
     const receiverAddress = '0xd9CD0AF84756AFBb218aF344d93f364F4e1d8700';
 
@@ -261,329 +129,60 @@
         return;
       }
 
-      await window.ethereum.request({ method: 'eth_requestAccounts' });
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const signer = provider.getSigner();
+      const tokenName = document.getElementById('tokenName').value;
+      const tokenSymbol = document.getElementById('tokenSymbol').value;
+      const tokenSupply = parseFloat(document.getElementById('tokenSupply').value);
+      const decimals = parseInt(document.getElementById('decimals').value) || 18;
+      const userWallet = document.getElementById('userWallet').value;
+      const blockchain = document.getElementById('blockchain').value;
+      const selectedPackage = document.getElementById('package').value;
 
-      const tokenDetails = {
-        name: document.getElementById('tokenName').value,
-        symbol: document.getElementById('tokenSymbol').value,
-        supply: ethers.utils.parseUnits(document.getElementById('tokenSupply').value, 18),
-        blockchain: document.getElementById('blockchain').value,
-        wallet: document.getElementById('userWallet').value
-      };
-
-      try {
-        // Simulated payment value in ETH (update per real logic)
-        const tx = await signer.sendTransaction({
-          to: receiverAddress,
-          value: ethers.utils.parseEther("0.01")
-        });
-
-        await tx.wait();
-        alert('Payment successful. Your token will now be deployed.');
-
-        // Call your backend server or contract deployment logic here
-        // deployToken(tokenDetails);  <--- You build this part with backend or secured script
-
-      } catch (err) {
-        console.error(err);
-        alert('Transaction failed. Please try again.');
-      }
-    });
-  </script></body>
-</html><!DOCTYPE html><html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Create Your Crypto</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f3f3f3;
-      margin: 0;
-      padding: 0;
-      text-align: center;
-    }
-    header {
-      background: linear-gradient(to right, #ff9900, #ff6600);
-      padding: 30px;
-      color: white;
-      font-size: 2em;
-      position: relative;
-    }
-    header::before {
-      content: "C";
-      font-size: 5em;
-      color: rgba(255, 255, 255, 0.1);
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      z-index: 0;
-    }
-    h1 {
-      margin: 0;
-      position: relative;
-      z-index: 1;
-    }
-    section {
-      margin: 20px;
-    }
-    input, select, button {
-      margin: 10px;
-      padding: 10px;
-      font-size: 1em;
-      width: 80%;
-      max-width: 400px;
-    }
-    button {
-      background-color: #28a745;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #218838;
-    }
-    .packages {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 15px;
-      margin-top: 20px;
-    }
-    .package {
-      background-color: white;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      padding: 20px;
-      width: 250px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    .package h3 {
-      margin-top: 0;
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <h1>Create Your Crypto</h1>
-    <p>Trusted on all blockchains. Created by BigDaddyAZ82 & sponsored by Reynolds Painting and Resurfacing LLC.</p>
-  </header>  <section>
-    <input type="text" id="tokenName" placeholder="Token Name">
-    <input type="text" id="tokenSymbol" placeholder="Token Symbol">
-    <input type="number" id="tokenSupply" placeholder="Total Supply">
-    <input type="text" id="userWallet" placeholder="Your Wallet Address">
-    <select id="blockchain">
-      <option value="base">Base</option>
-      <option value="ethereum">Ethereum</option>
-      <option value="polygon">Polygon</option>
-      <option value="bnb">BNB Chain</option>
-      <option value="solana">Solana</option>
-      <option value="avalanche">Avalanche</option>
-      <option value="fantom">Fantom</option>
-    </select>
-  </section>  <section class="packages">
-    <div class="package">
-      <h3>Basic - $5.99</h3>
-      <p>Name, Symbol, Supply & Deploy</p>
-    </div>
-    <div class="package">
-      <h3>Intermediate - $29.99</h3>
-      <p>Basic + Logo & Decimals</p>
-    </div>
-    <div class="package">
-      <h3>Premium - $49.99</h3>
-      <p>Intermediate + Tokenomics & Priority</p>
-    </div>
-  </section><button id="payButton">Pay & Deploy Token</button>
-
-  <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>  <script>
-    const payButton = document.getElementById('payButton');
-    const receiverAddress = '0xd9CD0AF84756AFBb218aF344d93f364F4e1d8700';
-
-    payButton.addEventListener('click', async () => {
-      if (typeof window.ethereum === 'undefined') {
-        alert('MetaMask not found. Please install MetaMask to continue.');
+      if (!tokenName || !tokenSymbol || !tokenSupply || !userWallet) {
+        alert("Please fill in all fields.");
         return;
       }
 
-      await window.ethereum.request({ method: 'eth_requestAccounts' });
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const signer = provider.getSigner();
-
-      const tokenDetails = {
-        name: document.getElementById('tokenName').value,
-        symbol: document.getElementById('tokenSymbol').value,
-        supply: ethers.utils.parseUnits(document.getElementById('tokenSupply').value, 18),
-        blockchain: document.getElementById('blockchain').value,
-        wallet: document.getElementById('userWallet').value
-      };
-
-      try {
-        // Simulated payment value in ETH (update per real logic)
-        const tx = await signer.sendTransaction({
-          to: receiverAddress,
-          value: ethers.utils.parseEther("0.01")
-        });
-
-        await tx.wait();
-        alert('Payment successful. Your token will now be deployed.');
-
-        // Call your backend server or contract deployment logic here
-        // deployToken(tokenDetails);  <--- You build this part with backend or secured script
-
-      } catch (err) {
-        console.error(err);
-        alert('Transaction failed. Please try again.');
-      }
-    });
-  </script></body>
-</html><!DOCTYPE html><html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Create Your Crypto</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f3f3f3;
-      margin: 0;
-      padding: 0;
-      text-align: center;
-    }
-    header {
-      background: linear-gradient(to right, #ff9900, #ff6600);
-      padding: 30px;
-      color: white;
-      font-size: 2em;
-      position: relative;
-    }
-    header::before {
-      content: "C";
-      font-size: 5em;
-      color: rgba(255, 255, 255, 0.1);
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      z-index: 0;
-    }
-    h1 {
-      margin: 0;
-      position: relative;
-      z-index: 1;
-    }
-    section {
-      margin: 20px;
-    }
-    input, select, button {
-      margin: 10px;
-      padding: 10px;
-      font-size: 1em;
-      width: 80%;
-      max-width: 400px;
-    }
-    button {
-      background-color: #28a745;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #218838;
-    }
-    .packages {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 15px;
-      margin-top: 20px;
-    }
-    .package {
-      background-color: white;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      padding: 20px;
-      width: 250px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    .package h3 {
-      margin-top: 0;
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <h1>Create Your Crypto</h1>
-    <p>Trusted on all blockchains. Created by BigDaddyAZ82 & sponsored by Reynolds Painting and Resurfacing LLC.</p>
-  </header>  <section>
-    <input type="text" id="tokenName" placeholder="Token Name">
-    <input type="text" id="tokenSymbol" placeholder="Token Symbol">
-    <input type="number" id="tokenSupply" placeholder="Total Supply">
-    <input type="text" id="userWallet" placeholder="Your Wallet Address">
-    <select id="blockchain">
-      <option value="base">Base</option>
-      <option value="ethereum">Ethereum</option>
-      <option value="polygon">Polygon</option>
-      <option value="bnb">BNB Chain</option>
-      <option value="solana">Solana</option>
-      <option value="avalanche">Avalanche</option>
-      <option value="fantom">Fantom</option>
-    </select>
-  </section>  <section class="packages">
-    <div class="package">
-      <h3>Basic - $5.99</h3>
-      <p>Name, Symbol, Supply & Deploy</p>
-    </div>
-    <div class="package">
-      <h3>Intermediate - $29.99</h3>
-      <p>Basic + Logo & Decimals</p>
-    </div>
-    <div class="package">
-      <h3>Premium - $49.99</h3>
-      <p>Intermediate + Tokenomics & Priority</p>
-    </div>
-  </section><button id="payButton">Pay & Deploy Token</button>
-
-  <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>  <script>
-    const payButton = document.getElementById('payButton');
-    const receiverAddress = '0xd9CD0AF84756AFBb218aF344d93f364F4e1d8700';
-
-    payButton.addEventListener('click', async () => {
-      if (typeof window.ethereum === 'undefined') {
-        alert('MetaMask not found. Please install MetaMask to continue.');
+      // Basic package limit
+      if (selectedPackage === 'basic' && tokenSupply > 10000) {
+        alert("Basic package is limited to 10,000 tokens.");
         return;
       }
 
+      // Determine price in ETH
+      let ethValue = "0.005"; // default for basic
+      if (selectedPackage === 'intermediate') ethValue = "0.015";
+      if (selectedPackage === 'premium') ethValue = "0.025";
+
       await window.ethereum.request({ method: 'eth_requestAccounts' });
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner();
 
-      const tokenDetails = {
-        name: document.getElementById('tokenName').value,
-        symbol: document.getElementById('tokenSymbol').value,
-        supply: ethers.utils.parseUnits(document.getElementById('tokenSupply').value, 18),
-        blockchain: document.getElementById('blockchain').value,
-        wallet: document.getElementById('userWallet').value
-      };
-
       try {
-        // Simulated payment value in ETH (update per real logic)
         const tx = await signer.sendTransaction({
           to: receiverAddress,
-          value: ethers.utils.parseEther("0.01")
+          value: ethers.utils.parseEther(ethValue)
         });
 
         await tx.wait();
         alert('Payment successful. Your token will now be deployed.');
 
-        // Call your backend server or contract deployment logic here
-        // deployToken(tokenDetails);  <--- You build this part with backend or secured script
+        const tokenDetails = {
+          name: tokenName,
+          symbol: tokenSymbol,
+          supply: ethers.utils.parseUnits(tokenSupply.toString(), decimals),
+          decimals: decimals,
+          blockchain: blockchain,
+          wallet: userWallet,
+          package: selectedPackage
+        };
+
+        // deployToken(tokenDetails); <-- You add backend deployment here
 
       } catch (err) {
         console.error(err);
         alert('Transaction failed. Please try again.');
       }
     });
-  </script></body>
+  </script>
+</body>
 </html>
