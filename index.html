@@ -1,63 +1,183 @@
-<!-- create-your-crypto frontend (index.html) --><!DOCTYPE html><html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Create Your Crypto</title>
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-  <script src="https://unpkg.com/web3modal"></script>
-  <style>
-    body { font-family: sans-serif; padding: 20px; background: #f5f5f5; }
-    input, select, button { margin-top: 10px; padding: 8px; width: 100%; }
-  </style>
-</head>
-<body>
-  <h1>Create Your Crypto</h1>
-  <form id="tokenForm">
-    <input type="text" id="tokenName" placeholder="Token Name" required />
-    <input type="text" id="tokenSymbol" placeholder="Token Symbol" required />
-    <input type="number" id="totalSupply" placeholder="Total Supply" required />
-    <label><input type="checkbox" id="mintable" /> Mintable</label><br />
-    <label><input type="checkbox" id="burnable" /> Burnable</label><br />
-    <label><input type="checkbox" id="taxable" /> Transfer Tax</label><br />
-    <select id="networkSelect" required>
-      <option value="base">Base</option>
-      <option value="polygon">Polygon</option>
-      <option value="ethereum">Ethereum</option>
-    </select>
-    <button type="submit">Pay and Create Token</button>
-  </form>  <script>
-    const paymentAddress = "0x75e8B7b4A4Fa18914D2d9616523bB0E56B5DAf3C";
-    const paymentAmountInEth = "0.015"; // $45 estimate
+from zipfile import ZipFile
+from pathlib import Path
 
-    async function connectWallet() {
-      const providerOptions = {};
-      const web3Modal = new window.Web3Modal.default({ cacheProvider: false, providerOptions });
-      const instance = await web3Modal.connect();
-      const provider = new ethers.providers.Web3Provider(instance);
-      const signer = provider.getSigner();
-      return signer;
+# File structure and content
+file_structure = {
+    "contracts/TokenFactory.sol": """// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract TokenFactory {
+    string public name;
+    string public symbol;
+    uint256 public totalSupply;
+    uint256 public taxBasisPoints;
+    address public owner;
+    bool public mintable;
+    bool public burnable;
+
+    mapping(address => uint256) public balanceOf;
+
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Burn(address indexed from, uint256 value);
+    event Mint(address indexed to, uint256 value);
+
+    constructor(
+        string memory _name,
+        string memory _symbol,
+        uint256 _supply,
+        bool _mintable,
+        bool _burnable,
+        uint256 _taxBasisPoints,
+        address _owner
+    ) {
+        name = _name;
+        symbol = _symbol;
+        totalSupply = _supply;
+        mintable = _mintable;
+        burnable = _burnable;
+        taxBasisPoints = _taxBasisPoints;
+        owner = _owner;
+        balanceOf[_owner] = _supply;
+        emit Transfer(address(0), _owner, _supply);
     }
 
-    document.getElementById("tokenForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const signer = await connectWallet();
-      const tx = await signer.sendTransaction({
-        to: paymentAddress,
-        value: ethers.utils.parseEther(paymentAmountInEth)
-      });
-      alert("Payment sent! TX Hash: " + tx.hash + "\nWe'll deploy your token soon.");
-      // Store form values and selected network
-      const data = {
-        name: document.getElementById("tokenName").value,
-        symbol: document.getElementById("tokenSymbol").value,
-        supply: document.getElementById("totalSupply").value,
-        mintable: document.getElementById("mintable").checked,
-        burnable: document.getElementById("burnable").checked,
-        taxable: document.getElementById("taxable").checked,
-        network: document.getElementById("networkSelect").value
-      };
-      console.log("Token Config:", data);
-      // Later: send this data to GitHub backend deployment script
-    });
-  </script></body>
-             </html>
+    function transfer(address _to, uint256 _value) public returns (bool success) {
+        require(balanceOf[msg.sender] >= _value, "Insufficient balance");
+
+        uint256 tax = (taxBasisPoints > 0) ? (_value * taxBasisPoints) / 10000 : 0;
+        uint256 amountAfterTax = _value - tax;
+
+        balanceOf[msg.sender] -= _value;
+        balanceOf[_to] += amountAfterTax;
+        if (tax > 0) {
+            balanceOf[owner] += tax;
+        }
+
+        emit Transfer(msg.sender, _to, amountAfterTax);
+        return true;
+    }
+
+    function burn(uint256 _value) public returns (bool success) {
+        require(burnable, "Burning is disabled");
+        require(balanceOf[msg.sender] >= _value, "Insufficient balance to burn");
+
+        balanceOf[msg.sender] -= _value;
+        totalSupply -= _value;
+        emit Burn(msg.sender, _value);
+        return true;
+    }
+
+    function mint(address _to, uint256 _value) public returns (bool success) {
+        require(mintable, "Minting is disabled");
+        require(msg.sender == owner, "Only owner can mint");
+
+        totalSupply += _value;
+        balanceOf[_to] += _value;
+        emit Mint(_to, _value);
+        return true;
+    }
+}
+""",
+    "deploy.js": """const { ethers } = require("hardhat");
+require("dotenv").config();
+
+async function main() {
+  const [deployer] = await ethers.getSigners();
+  console.log("Deploying contracts with:", deployer.address);
+
+  const config = require("./token-config.json");
+  const TokenFactory = await ethers.getContractFactory("TokenFactory");
+
+  const token = await TokenFactory.deploy(
+    config.name,
+    config.symbol,
+    config.supply,
+    config.mintable,
+    config.burnable,
+    config.tax,
+    config.owner
+  );
+
+  await token.deployed();
+  console.log("Token deployed to:", token.address);
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
+""",
+    "token-config.json": """{
+  "name": "ExampleToken",
+  "symbol": "EXT",
+  "supply": 1000000,
+  "mintable": true,
+  "burnable": true,
+  "tax": 200,
+  "owner": "0x75e8B7b4A4Fa18914D2d9616523bB0E56B5DAf3C"
+}
+""",
+    "hardhat.config.js": """require("@nomicfoundation/hardhat-toolbox");
+require("dotenv").config();
+
+module.exports = {
+  solidity: "0.8.20",
+  networks: {
+    base: {
+      url: process.env.BASE_RPC_URL,
+      accounts: [process.env.PRIVATE_KEY]
+    },
+    polygon: {
+      url: process.env.POLYGON_RPC_URL,
+      accounts: [process.env.PRIVATE_KEY]
+    },
+    ethereum: {
+      url: process.env.ETHEREUM_RPC_URL,
+      accounts: [process.env.PRIVATE_KEY]
+    }
+  }
+};
+""",
+    ".github/workflows/deploy.yml": """name: Deploy Token
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: |
+          npm install --save-dev hardhat
+          npm install @nomicfoundation/hardhat-toolbox ethers dotenv
+
+      - name: Compile contract
+        run: npx hardhat compile
+
+      - name: Deploy contract
+        run: node deploy.js
+        env:
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          BASE_RPC_URL: ${{ secrets.BASE_RPC_URL }}
+          POLYGON_RPC_URL: ${{ secrets.POLYGON_RPC_URL }}
+          ETHEREUM_RPC_URL: ${{ secrets.ETHEREUM_RPC_URL }}
+"""
+}
+
+# Create zip file
+zip_path = "/mnt/data/CreateYourCrypto.zip"
+with ZipFile(zip_path, "w") as zipf:
+    for path, content in file_structure.items():
+        file_path = Path(path)
+        zipf.writestr(str(file_path), content)
+
+zip_path
