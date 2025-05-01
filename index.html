@@ -1,66 +1,212 @@
-https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js<!-- Payment Button (Coinbase Commerce or MetaMask) -->
-<button id="payButton">Pay & Deploy Token</button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Your Crypto Token</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7fc;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #28a745;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2.5em;
+    }
+    .intro {
+      margin: 20px;
+      text-align: center;
+      font-size: 1.2em;
+    }
+    .form-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .form-container input, .form-container select, .form-container button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .form-container button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 1.2em;
+    }
+    .form-container button:hover {
+      background-color: #218838;
+    }
+    .packages-container {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+    .package {
+      background-color: #ffffff;
+      border: 1px solid #ddd;
+      padding: 15px;
+      width: 30%;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .package h3 {
+      margin-top: 0;
+    }
+    .package button {
+      background-color: #007bff;
+      color: white;
+      font-size: 1.1em;
+      border: none;
+      cursor: pointer;
+    }
+    .package button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Create Your Crypto Token</h1>
+</header>
+
+<div class="intro">
+  <p>Trusted on all blockchains</p>
+  <p>Created by BigDaddyAZ82 and sponsored by Reynolds Painting & Resurfacing LLC.</p>
+  <p>Make your own custom cryptocurrency token today! Choose your options and deploy your token to the blockchain of your choice.</p>
+</div>
+
+<div class="form-container">
+  <h2>Enter Your Token Details</h2>
+  <form id="tokenForm">
+    <input type="text" id="tokenName" placeholder="Token Name" required />
+    <input type="text" id="tokenSymbol" placeholder="Token Symbol" required />
+    <input type="number" id="tokenSupply" placeholder="Total Supply (e.g., 1000000)" required />
+    <select id="blockchain" required>
+      <option value="base">Base Network</option>
+      <option value="ethereum">Ethereum</option>
+      <option value="polygon">Polygon</option>
+      <option value="solana">Solana</option>
+      <option value="binance">Binance Smart Chain (BNB)</option>
+      <option value="avalanche">Avalanche</option>
+      <option value="fantom">Fantom</option>
+      <option value="arbitrum">Arbitrum</option>
+      <option value="optimism">Optimism</option>
+      <option value="heco">HECO</option>
+      <option value="xDai">xDai</option>
+    </select>
+    <br/>
+    <button type="submit">Create Token</button>
+  </form>
+</div>
+
+<div class="packages-container">
+  <div class="package">
+    <h3>Basic Package - $5.99</h3>
+    <p>Mint up to 10,000 tokens.</p>
+    <button id="basicPackageBtn">Choose Basic Package</button>
+  </div>
+  <div class="package">
+    <h3>Standard Package - $29.99</h3>
+    <p>Mint up to 100,000 tokens. Includes burn and minting support.</p>
+    <button id="standardPackageBtn">Choose Standard Package</button>
+  </div>
+  <div class="package">
+    <h3>Premium Package - $49.99</h3>
+    <p>Mint unlimited tokens. Includes minting/burning support and tax feature.</p>
+    <button id="premiumPackageBtn">Choose Premium Package</button>
+  </div>
+</div>
+
+<div class="form-container">
+  <h2>Payment</h2>
+  <button id="payButton">Pay & Deploy Token</button>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
 <script>
+  const blockchainUrls = {
+    'base': 'https://base-rpc-url.com',
+    'ethereum': 'https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID',
+    'polygon': 'https://polygon-rpc.com',
+    'solana': 'https://api.mainnet-beta.solana.com',
+    'binance': 'https://bsc-dataseed.binance.org/',
+    'avalanche': 'https://api.avax.network/ext/bc/C/rpc',
+    'fantom': 'https://rpcapi.fantom.network',
+    'arbitrum': 'https://arb1.arbitrum.io/rpc',
+    'optimism': 'https://mainnet.optimism.io',
+    'heco': 'https://http-mainnet.hecochain.com',
+    'xDai': 'https://rpc.xdaichain.com/',
+  };
+
+  function getBlockchainUrl(blockchain) {
+    return blockchainUrls[blockchain];
+  }
+
   const payButton = document.getElementById('payButton');
   
   payButton.addEventListener('click', async () => {
-    // 1. User makes payment via Coinbase Commerce or MetaMask
     const paymentReceived = await verifyPayment();
 
     if (paymentReceived) {
-      // 2. Trigger the token creation process
       const tokenDetails = {
         name: document.getElementById('tokenName').value,
         symbol: document.getElementById('tokenSymbol').value,
         supply: document.getElementById('tokenSupply').value,
         blockchain: document.getElementById('blockchain').value,
-        package: document.getElementById('package').value,
+        package: getSelectedPackage(),
       };
 
-      // 3. Automatically deploy the token on the selected blockchain
       await deployToken(tokenDetails);
     } else {
       alert("Payment not received. Please try again.");
     }
   });
 
-  async function verifyPayment() {
-    // Implement payment verification using Coinbase Commerce or MetaMask
-    // You can use Coinbase Commerce's API or listen for a MetaMask transaction confirmation
+  function getSelectedPackage() {
+    if (document.getElementById('basicPackageBtn').classList.contains('selected')) {
+      return 'basic';
+    }
+    if (document.getElementById('standardPackageBtn').classList.contains('selected')) {
+      return 'standard';
+    }
+    if (document.getElementById('premiumPackageBtn').classList.contains('selected')) {
+      return 'premium';
+    }
+    return 'basic';
+  }
 
-    return true;  // Simulate payment verification for now
+  async function verifyPayment() {
+    return true; // Simulate payment verification
   }
 
   async function deployToken(details) {
-    // 4. Automatically deploy the token using Ethers.js (or Web3.js) on the selected blockchain
     const provider = new ethers.providers.JsonRpcProvider(getBlockchainUrl(details.blockchain));
     const wallet = new ethers.Wallet('<YOUR_PRIVATE_KEY>', provider);
 
-    // Deploy the contract (simplified example)
     const tokenContract = await deployTokenContract(wallet, details);
-    
-    // Send the token to the user’s wallet
     const userWallet = document.getElementById('userWallet').value;
     await tokenContract.transfer(userWallet, details.supply);
 
     alert("Token successfully deployed!");
   }
 
-  function getBlockchainUrl(blockchain) {
-    // Provide URLs for the different blockchains (Base, Polygon, Ethereum, etc.)
-    const blockchainUrls = {
-      'base': 'https://base-rpc-url',
-      'ethereum': 'https://eth-rpc-url',
-      'polygon': 'https://polygon-rpc-url',
-      // Add other blockchain URLs
-    };
-    return blockchainUrls[blockchain];
-  }
-
   async function deployTokenContract(wallet, details) {
-    // This is where you use your smart contract template to deploy a token on the selected blockchain
     const contractFactory = new ethers.ContractFactory(
       TokenABI,
       TokenBytecode,
@@ -71,3 +217,6 @@ https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js<!-- Payment Button (Coinb
     return contract;
   }
 </script>
+
+</body>
+</html>
