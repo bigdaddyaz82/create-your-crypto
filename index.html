@@ -6,13 +6,146 @@
     <meta name="description" content="Create your own crypto token with ease! Select from our packages to mint your token and get it deployed on the blockchain of your choice.">
     <title>Create Your Crypto Token</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #1c1c1c;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+        }
+
+        #token-details {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 20px auto;
+            width: 80%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        #token-details h2 {
+            color: #ff6600;
+        }
+
+        input, select {
+            padding: 10px;
+            margin: 10px 0;
+            width: 80%;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        button[type="submit"], button {
+            background-color: #28a745;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button[type="submit"]:hover, button:hover {
+            background-color: #218838;
+        }
+
+        #packages {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #fff;
+        }
+
+        .package {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            width: 30%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .package:hover {
+            transform: scale(1.05);
+        }
+
+        .package h3 {
+            color: #ff6600;
+        }
+
+        .package ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .package ul li {
+            padding: 5px 0;
+        }
+
+        #coinbase-payment {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+        }
+
+        footer {
+            background-color: #1c1c1c;
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+        }
+    </style>
 </head>
 <body>
 
 <header>
     <h1>Create Your Crypto</h1>
-    <p>Make your own crypto with Create Your Crypto. Trust us on all blockchains. Mint, deploy, and own your token today!</p>
+    <p>Make your own crypto with Create Your Crypto. Trusted on all blockchains. Mint, deploy, and own your token today! Created by BigDaddyAZ82 and sponsored by Reynolds Painting and Resurfacing LLC.</p>
 </header>
+
+<section id="token-details">
+    <h2>Enter Your Token Details</h2>
+    <form id="tokenForm" onsubmit="submitForm(event)">
+        <label for="tokenName">Token Name:</label>
+        <input type="text" id="tokenName" name="tokenName" required>
+
+        <label for="tokenSymbol">Token Symbol:</label>
+        <input type="text" id="tokenSymbol" name="tokenSymbol" required>
+
+        <label for="tokenSupply">Token Supply:</label>
+        <input type="number" id="tokenSupply" name="tokenSupply" required>
+
+        <label for="blockchain">Select Blockchain:</label>
+        <select id="blockchain" name="blockchain">
+            <option value="ethereum">Ethereum</option>
+            <option value="polygon">Polygon</option>
+            <option value="binance">Binance Smart Chain</option>
+            <!-- Add other blockchains here -->
+        </select>
+
+        <div id="coinbase-payment">
+            <p>Please complete the payment below:</p>
+            <!-- Payment gateway integration will go here -->
+        </div>
+
+        <button type="submit">Create Token</button>
+    </form>
+</section>
 
 <section id="packages">
     <h2>Choose Your Package</h2>
@@ -60,37 +193,8 @@
     </div>
 </section>
 
-<section id="token-details">
-    <h2>Enter Your Token Details</h2>
-    <form id="tokenForm" onsubmit="submitForm(event)">
-        <label for="tokenName">Token Name:</label>
-        <input type="text" id="tokenName" name="tokenName" required>
-
-        <label for="tokenSymbol">Token Symbol:</label>
-        <input type="text" id="tokenSymbol" name="tokenSymbol" required>
-
-        <label for="tokenSupply">Token Supply:</label>
-        <input type="number" id="tokenSupply" name="tokenSupply" required>
-
-        <label for="blockchain">Select Blockchain:</label>
-        <select id="blockchain" name="blockchain">
-            <option value="ethereum">Ethereum</option>
-            <option value="polygon">Polygon</option>
-            <option value="binance">Binance Smart Chain</option>
-            <!-- Add other blockchains here -->
-        </select>
-
-        <div id="coinbase-payment">
-            <p>Please complete the payment below:</p>
-            <!-- Payment gateway integration will go here -->
-        </div>
-
-        <button type="submit">Create Token</button>
-    </form>
-</section>
-
 <footer>
-    <p>&copy; 2025 CreateYourCrypto. All rights reserved.</p>
+    <p>&copy; 2025 CreateYourCrypto. All rights reserved. Created by BigDaddyAZ82 and sponsored by Reynolds Painting and Resurfacing LLC.</p>
 </footer>
 
 <script>
