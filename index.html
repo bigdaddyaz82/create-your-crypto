@@ -1,78 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Create Your Crypto</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #0e0e0e; color: #fff; padding: 20px; }
-    h1 { color: #ffcc00; }
-    form { background: #1e1e1e; padding: 20px; border-radius: 10px; max-width: 400px; }
-    label { display: block; margin-top: 10px; }
-    input, select { width: 100%; padding: 8px; margin-top: 5px; border-radius: 5px; border: none; }
-    button { margin-top: 20px; padding: 10px; background: #ffcc00; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
-    .note { margin-top: 20px; font-size: 0.9em; color: #ccc; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Your Crypto</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f7f7f7; padding: 20px; }
+        h1 { color: #333; }
+        h2 { color: #444; }
+        .option { background-color: #fff; padding: 15px; border-radius: 8px; margin: 15px 0; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+        .option button { padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .option button:hover { background-color: #45a049; }
+        .info { margin-top: 20px; font-size: 16px; color: #333; }
+    </style>
 </head>
 <body>
-  <h1>Create Your Crypto</h1>
-  <p>Fill in your token info and send <strong>$40 in ETH or USDC</strong> to:</p>
-  <p style="color: #00ffcc;"><strong>0x75e8B7b4A4Fa18914D2d9616523bB0E56B5DAf3C</strong></p>
+    <h1>Create Your Own Crypto Token</h1>
 
-  <form id="tokenForm">
-    <label for="name">Token Name:</label>
-    <input type="text" id="name" required />
+    <p>Welcome to Create Your Crypto! Easily mint your own tokens and enjoy minting and burning support for your project. Choose your desired minting option below:</p>
 
-    <label for="symbol">Symbol:</label>
-    <input type="text" id="symbol" required />
+    <h2>Select Your Minting Option:</h2>
+    
+    <div class="option">
+        <h3>Option 1: Mint 10,000 Tokens for $5.99</h3>
+        <p>This option allows you to mint exactly 10,000 tokens for just $5.99. Perfect for getting started!</p>
+        <button onclick="selectMintingOption(10000, 5.99)">Mint 10,000 Tokens</button>
+    </div>
+    
+    <div class="option">
+        <h3>Option 2: Mint More than 10,000 Tokens for $30</h3>
+        <p>Want more than 10,000 tokens? This option lets you mint more tokens, with a maximum of 1 million tokens, for just $30.</p>
+        <button onclick="selectMintingOption(100000, 30)">Mint More Than 10,000 Tokens</button>
+    </div>
+    
+    <div class="option">
+        <h3>Option 3: Unlimited Minting for $40</h3>
+        <p>Go unlimited! Mint as many tokens as you want for a flat fee of $40.</p>
+        <button onclick="selectMintingOption(1000000, 40)">Unlimited Minting</button>
+    </div>
 
-    <label for="supply">Total Supply:</label>
-    <input type="number" id="supply" required />
+    <div class="info">
+        <h2>What's Included?</h2>
+        <p>When you mint tokens with us, you also get full <strong>Minting and Burning Support</strong>. You can burn your tokens later or continue minting as needed.</p>
+    </div>
 
-    <label for="mintable">Mintable?</label>
-    <select id="mintable">
-      <option value="true">Yes</option>
-      <option value="false">No</option>
-    </select>
-
-    <label for="burnable">Burnable?</label>
-    <select id="burnable">
-      <option value="true">Yes</option>
-      <option value="false">No</option>
-    </select>
-
-    <label for="tax">Tax % (0–10):</label>
-    <input type="number" id="tax" min="0" max="10" value="0" />
-
-    <button type="submit">Download Token Config</button>
-  </form>
-
-  <div class="note">
-    After payment and download, send the file to our team. We'll deploy your token on-chain and notify you!
-  </div>
-
-  <script>
-    const form = document.getElementById('tokenForm');
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-
-      const config = {
-        name: document.getElementById('name').value,
-        symbol: document.getElementById('symbol').value,
-        totalSupply: document.getElementById('supply').value,
-        mintable: document.getElementById('mintable').value === 'true',
-        burnable: document.getElementById('burnable').value === 'true',
-        taxPercentage: parseInt(document.getElementById('tax').value),
-        paymentWallet: '0x75e8B7b4A4Fa18914D2d9616523bB0E56B5DAf3C'
-      };
-
-      const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'token-config.json';
-      a.click();
-    });
-  </script>
+    <script>
+        function selectMintingOption(amount, price) {
+            // Proceed to handle the payment and minting process
+            alert(`You selected to mint ${amount} tokens for ${price} ETH. Proceeding to payment...`);
+            // Link to payment system (Coinbase Commerce or other) here
+        }
+    </script>
 </body>
 </html>
