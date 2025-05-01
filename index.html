@@ -1,0 +1,63 @@
+<!-- create-your-crypto frontend (index.html) --><!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Your Crypto</title>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script src="https://unpkg.com/web3modal"></script>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #f5f5f5; }
+    input, select, button { margin-top: 10px; padding: 8px; width: 100%; }
+  </style>
+</head>
+<body>
+  <h1>Create Your Crypto</h1>
+  <form id="tokenForm">
+    <input type="text" id="tokenName" placeholder="Token Name" required />
+    <input type="text" id="tokenSymbol" placeholder="Token Symbol" required />
+    <input type="number" id="totalSupply" placeholder="Total Supply" required />
+    <label><input type="checkbox" id="mintable" /> Mintable</label><br />
+    <label><input type="checkbox" id="burnable" /> Burnable</label><br />
+    <label><input type="checkbox" id="taxable" /> Transfer Tax</label><br />
+    <select id="networkSelect" required>
+      <option value="base">Base</option>
+      <option value="polygon">Polygon</option>
+      <option value="ethereum">Ethereum</option>
+    </select>
+    <button type="submit">Pay and Create Token</button>
+  </form>  <script>
+    const paymentAddress = "0x75e8B7b4A4Fa18914D2d9616523bB0E56B5DAf3C";
+    const paymentAmountInEth = "0.015"; // $45 estimate
+
+    async function connectWallet() {
+      const providerOptions = {};
+      const web3Modal = new window.Web3Modal.default({ cacheProvider: false, providerOptions });
+      const instance = await web3Modal.connect();
+      const provider = new ethers.providers.Web3Provider(instance);
+      const signer = provider.getSigner();
+      return signer;
+    }
+
+    document.getElementById("tokenForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const signer = await connectWallet();
+      const tx = await signer.sendTransaction({
+        to: paymentAddress,
+        value: ethers.utils.parseEther(paymentAmountInEth)
+      });
+      alert("Payment sent! TX Hash: " + tx.hash + "\nWe'll deploy your token soon.");
+      // Store form values and selected network
+      const data = {
+        name: document.getElementById("tokenName").value,
+        symbol: document.getElementById("tokenSymbol").value,
+        supply: document.getElementById("totalSupply").value,
+        mintable: document.getElementById("mintable").checked,
+        burnable: document.getElementById("burnable").checked,
+        taxable: document.getElementById("taxable").checked,
+        network: document.getElementById("networkSelect").value
+      };
+      console.log("Token Config:", data);
+      // Later: send this data to GitHub backend deployment script
+    });
+  </script></body>
+             </html>
