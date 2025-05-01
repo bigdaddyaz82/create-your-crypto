@@ -1,0 +1,53 @@
+const express = require('express');
+const bodyParser = require('body-parser');
+const { ethers } = require('ethers');
+require('dotenv').config();
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.use(bodyParser.json());
+
+// Standard ERC-20 ABI (constructor: name, symbol, initialSupply)
+const ERC20_ABI = [
+  "constructor(string memory name, string memory symbol, uint256 initialSupply)",
+  "function name() view returns (string)",
+  "function symbol() view returns (string)",
+  "function decimals() view returns (uint8)",
+  "function totalSupply() view returns (uint256)",
+  "function balanceOf(address owner) view returns (uint256)",
+  "function transfer(address to, uint amount) returns (bool)",
+  "event Transfer(address indexed from, address indexed to, uint amount)"
+];
+
+// Precompiled ERC-20 bytecode (18 decimals, simple token). From Remix compile:
+const ERC20_BYTECODE = "0x608060405234801561001057600080fd5b506040516104f93803806104f98339818101604052810190610032919061006a565b806000819055503373ffffffffffffffffffffffffffffffffffffffff1660808173ffffffffffffffffffffffffffffffffffffffff168152602001915050600060405180830381858888f19350505050158015610092573d6000803e3d6000fd5b50505050610365806100a26000396000f3fe6080604052600436106100565760003560e01c806370a082311161003b57806370a08231146100cf57806395d89b41146100f0578063a9059cbb1461010d578063dd62ed3e1461012c57610056565b806306fdde031461005b578063095ea7b31461008a57806318160ddd146100b1575b600080fd5b34801561006757600080fd5b5061007061014d565b60405161007d91906102cc565b60405180910390f35b34801561009657600080fd5b506100af60048036038101906100aa91906102a0565b610173565b005b3480156100bd57600080fd5b506100c6610185565b6040516100d391906102cc565b60405180910390f35b3480156100db57600080fd5b506100e461018b565b6040516100f191906102cc565b60405180910390f35b3480156100fc57600080fd5b506101056101a4565b60405161011291906102cc565b60405180910390f35b34801561011957600080fd5b506101226101a9565b60405161012f91906102cc565b60405180910390f35b60008054905090565b60008160016000828254019250508190555050565b60016020528060005260406000206000915090505481565b60006020819052908152604090205481565b6001600080838152602001908152602001600020600090505b90565b600160005081905550565b60005481565b60016000808282540192505081905550565b60016020528060005260406000206000915090505481565b60006020819052908152604090205481565b60008054905090565b600160005081905550565b6001600080838152602001908152602001600020600090505b90565b6102be816102fd565b82525050565b60006020820190506102d960008301846102b5565b92915050565b6000819050919050565b6102f2816102df565b82525050565b600060208201905061030d60008301846102e9565b92915050565b600060408201905061032860008301856102e9565b818103602083015261033a81846102fa565b9050939250505056fea2646970667358221220a0618c91a7e0079f6ff6df280c62dbdc48b719f5c730ba3e424fc8cbe847e6e964736f6c634300080c0033";
+ 
+app.post('/deploy', async (req, res) => {
+  const { name, symbol, supply, wallet } = req.body;
+
+  if (!name || !symbol || !supply || !wallet) {
+    return res.status(400).json({ success: false, error: 'Missing fields' });
+  }
+
+  try {
+    const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+    const walletSigner = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
+
+    const factory = new ethers.ContractFactory(ERC20_ABI, ERC20_BYTECODE, walletSigner);
+
+    const initialSupply = ethers.utils.parseUnits(supply.toString(), 18); // 18 decimals
+    const contract = await factory.deploy(name, symbol, initialSupply);
+    await contract.waitForDeployment();
+    const tokenAddress = await contract.getAddress();
+
+    res.json({ success: true, address: tokenAddress });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.listen(PORT, () => {
+  console.log(`Crypto deploy server running on port ${PORT}`);
+});
